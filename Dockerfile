@@ -32,6 +32,8 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && node --version \
     && npm --version
 
+ENV PATH="${PATH}:/usr/local"
+
 # The golang version on the ubuntu repo is too old. So here is a manual install
 ENV GO_VERSION 1.20.6
 RUN ARCH=$(dpkg --print-architecture) \
@@ -39,6 +41,13 @@ RUN ARCH=$(dpkg --print-architecture) \
     && rm -rf /usr/local/go && tar -C /usr/local -xzf go${GO_VERSION}.linux-${ARCH}.tar.gz
 
 ENV PATH="${PATH}:/usr/local/go/bin"
+
+ENV PULUMICTL_VERSION 0.0.42
+RUN ARCH=$(dpkg --print-architecture) \
+    && wget https://github.com/pulumi/pulumictl/releases/download/v${PULUMICTL_VERSION}/pulumictl-v${PULUMICTL_VERSION}-linux-${ARCH}.tar.gz \
+    && tar -xzf pulumictl-v${PULUMICTL_VERSION}-linux-${ARCH}.tar.gz -C /usr/local --no-same-owner \
+    # smoke tests
+    && pulumictl version
 
 RUN npm install -g yarn typescript
 
@@ -50,6 +59,12 @@ USER cookiecutter
 ENV PATH="${PATH}:/home/cookiecutter/.local/bin"
 RUN python3 -m pip install cookiecutter packaging
 
+RUN curl -fsSL https://get.pulumi.com | sh
+
 COPY --chown=cookiecutter:cookiecutter . /home/cookiecutter
+
+ENV PATH="${PATH}:/home/cookiecutter/.pulumi/bin"
+
 WORKDIR /provider
+
 ENTRYPOINT ["/home/cookiecutter/entrypoint.sh"]
