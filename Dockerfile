@@ -35,7 +35,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
 ENV PATH="${PATH}:/usr/local"
 
 # The golang version on the ubuntu repo is too old. So here is a manual install
-ENV GO_VERSION 1.20.6
+ENV GO_VERSION 1.19.11
 RUN ARCH=$(dpkg --print-architecture) \
     && wget https://golang.org/dl/go${GO_VERSION}.linux-${ARCH}.tar.gz \
     && rm -rf /usr/local/go && tar -C /usr/local -xzf go${GO_VERSION}.linux-${ARCH}.tar.gz
